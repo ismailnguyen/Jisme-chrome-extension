@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Jisme Widget</title>
+
+	<script src="jquery-3.1.1.min.js"></script>
+	<script src="fontawesome.js"></script>
+	<script src="sjcl.js"></script>
+	<script src="sha256.min.js"></script>
+
+	<script src="main.js"></script>
+	
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+	
+	
+	<style>
+      body {
+        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-size: 100%;
+      }
+	  
+	  #login,
+	  .card-content,
+	  .hide-btn {
+		display: none;
+	  }
+	  
+	  .loader {
+        width: 100px;
+        height: 100px;
+        margin: auto;
+        background: url('icon-big.png') center center no-repeat;
+        -webkit-animation: loader-rotation 2s linear infinite;
+        -moz-animation: loader-rotation 2s linear infinite;
+        -o-animation: loader-rotation 2s linear infinite;
+        -ms-animation: loader-rotation 2s linear infinite;
+        animation: loader-rotation 2s linear infinite;
+        -webkit-background-size: 100%;
+        -moz-background-size: 100%;
+        background-size: 100%;
+		}
+		@-moz-keyframes loader-rotation {
+			from {
+				-webkit-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+			to {
+				-webkit-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				transform: rotate(0deg);
+			}
+		}
+		@-webkit-keyframes loader-rotation {
+			from {
+				-webkit-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+			to {
+				-webkit-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				transform: rotate(0deg);
+			}
+		}
+		@-o-keyframes loader-rotation {
+			from {
+				-webkit-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+			to {
+				-webkit-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				transform: rotate(0deg);
+			}
+		}
+		@keyframes loader-rotation {
+			from {
+				-webkit-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+			to {
+				-webkit-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				transform: rotate(0deg);
+			}
+		}
+		
+		* {
+			margin: 0;
+			position: relative;
+		}
+
+		body {
+		  color: #162056;
+		  background: #f8f9fa;
+		}
+		
+		.box {
+			background: none;
+			border: none;
+			box-shadow: none;
+		}
+    </style>
+	
+  </head>
+  <body>
+	<div id="app">
+		<div class="loader"></div>
+	</div>
+	
+	<div id="login">
+		<div class="box">
+            <div class="field">
+              <label for="" class="label">Email</label>
+              <div class="control has-icons-left">
+                <input id="email-input" type="email" placeholder="e.g. bobsmith@gmail.com" class="input" required>
+                <span class="icon is-small is-left">
+                  <i class="fa fa-envelope"></i>
+                </span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="" class="label">Password</label>
+              <div class="control has-icons-left">
+                <input id="password-input" type="password" placeholder="*******" class="input" required>
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </div>
+            </div>
+            <div class="field">
+              <button class="button is-success" id="login-btn">
+                Login
+              </button>
+            </div>
+          </div>
+	</div>
+	
+	<noscript>Please enable JavaScript to use this application</noscript>
+  </body>
+</html>
