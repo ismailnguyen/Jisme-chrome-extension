@@ -233,9 +233,14 @@ function login(email, password)
         });
 }
 
-function displayAccountsForUrl(accounts, url)
+function filterAccountsByUrl(accounts, url)
 {
-	const foundAccounts = accounts.filter(a => url.toLowerCase().includes(cleanUrl(a.platform).toLowerCase())).map(a => 
+	return accounts.filter(a => url.toLowerCase().includes(cleanUrl(a.platform).toLowerCase()));
+}
+
+function displayAccounts(accounts)
+{
+	const accountsHtml = accounts.map(a => 
 			`	<div class="card">
   <header class="card-header">
     <p class="card-header-title">
@@ -258,9 +263,19 @@ function displayAccountsForUrl(accounts, url)
 </div>`
 		);
 			
-	$('#app').html(foundAccounts);
+	$('#app').html(accountsHtml);
 		
 	attachRevealFunction();
+}
+
+function displayNotFound()
+{
+	$('#app').html(`
+	<br>
+		No account found for this website<br><br>
+		<a href="https://jisme.app" target="_blank">Register your account</a>
+	<br><br>
+	`);
 }
 
 function fetchAccountsOnline(url, email, token)
@@ -287,7 +302,15 @@ function fetchAccountsForUrl(url, email, token)
 	const isUpToDate = userLastUpdateDate < lastFetchDate
 
 	if (storedAccounts && isUpToDate) {
-		displayAccountsForUrl(storedAccounts, url);
+		
+		const filteredAccounts = filterAccountsByUrl(storedAccounts, url);
+		
+		if (filteredAccounts.length) {
+			displayAccounts(filteredAccounts);
+		}
+		else {
+			displayNotFound();
+		}
 	}
 	else {
 		fetchAccountsOnline(url, email, token)
