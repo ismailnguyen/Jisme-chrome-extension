@@ -179,18 +179,9 @@ function attachRevealFunction() {
 	})
 }
 
-function fetchCredentials ()
+function fetchUser ()
 {
-	const credentials = JSON.parse(
-				window.localStorage.getItem('user')
-			);
-	
-	return credentials
-			? credentials
-			: {
-				email: '',
-				token: ''
-			}
+	return JSON.parse(window.localStorage.getItem('user'))
 }
 
 function login(email, password)
@@ -293,11 +284,27 @@ function fetchAccountsOnline(url, email, token)
 	});
 }
 
-function fetchAccountsForUrl(url, email, token)
+function updateLastUpdateDate(user)
+{
+	return fetch(`https://jisme-api.herokuapp.com/users/${user.id}`,
+	{
+		method: 'GET',
+		headers: getHeadersWithAuth(user.email, user.token)
+	})
+	.then(response => response.json())
+	.then(jsonData => {			
+		user['last_update_date'] = jsonData.last_update_date
+		
+		localStorage.setItem('user', JSON.stringify(user))
+	})
+}
+
+function fetchAccountsForUrl(url, user)
 {
 	const storedAccounts = JSON.parse(localStorage.getItem('accounts'))
 	
-	const userLastUpdateDate = new Date(JSON.parse(localStorage.getItem('user')).last_update_date)
+	const userLastUpdateDate = new Date(user.last_update_date)
+	
 	const lastFetchDate = new Date(JSON.parse(localStorage.getItem('last_fetch_date')))
 	const isUpToDate = userLastUpdateDate < lastFetchDate
 
@@ -313,7 +320,7 @@ function fetchAccountsForUrl(url, email, token)
 		}
 	}
 	else {
-		fetchAccountsOnline(url, email, token)
+		fetchAccountsOnline(url, user.email, user.token)
 	}
 }
 
@@ -321,9 +328,10 @@ $(document).ready(function() {
 	chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 		let activeTabUrl = tabs[0].url;
 
-		const { email, token } = fetchCredentials();
-		if (email && token) {
-			fetchAccountsForUrl(activeTabUrl, email, token);
+		const user = fetchUser();
+		if (user) {
+			updateLastUpdateDate(user);
+			fetchAccountsForUrl(activeTabUrl, user);
 		}
 		else {
 			$('#login').css('display', 'block');
