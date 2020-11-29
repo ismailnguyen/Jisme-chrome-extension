@@ -12,87 +12,74 @@ function decrypt(encrypted, token)
 
 class Account
 {
-	constructor (_id = 0, platform = '', login = '', password = '', tags = '', created_date = new Date())
-	{
-		this._id = _id;
-		this.platform = platform;
-		this.login = login;
-		this.password = password;
-		this.tags = tags;
-		this.created_date = new Date(created_date).toUTCString();
-	}
+	constructor (_id = 0, 
+					platform = '', 
+					login = '', 
+					password = '', 
+					password_clue = '', 
+					tags = '', 
+					created_date = new Date(), 
+					social_login = '', 
+					notes = ''
+				)
+    {
+        this._id = _id;
+        this.platform = platform;
+        this.login = login;
+        this.password = password;
+		this.password_clue = password_clue;
+        this.tags = tags;
+        this.created_date = new Date(created_date).toUTCString();
+		this.social_login = social_login;
+		this.notes = notes;
+    }
 }
 
 function parseAccount(account)
 {
 	return new Account(
-		account._id,
-		account.platform,
-		account.login,
-		account.password,
-		account.tags,
-		account.created_date,
-	);
+        account._id,
+        account.platform,
+        account.login,
+        account.password,
+        account.password_clue,
+        account.tags,
+        account.created_date,
+		account.social_login,
+		account.notes
+    );
 }
+
+const cryptedArgs = [
+	'platform',
+	'login',
+	'password',
+	'password_clue',
+	'tags',
+	'social_login',
+	'notes'
+];
 
 function getEncryptedAccount (account, token)
 {
 	let encryptedAccount = JSON.parse(JSON.stringify(account)); // Clone object without reference
+	
+	cryptedArgs
+	.filter(cryptedArg => account[cryptedArg])
+	.forEach(cryptedArg => encryptedAccount[cryptedArg] = encrypt(account[cryptedArg], token))
 
-	if (account.platform)
-	{
-		encryptedAccount['platform'] = encrypt(account.platform, token);;
-	}
-
-	if (account.login)
-	{
-		encryptedAccount['login'] = encrypt(account.login, token);
-	}
-
-	if (account.password)
-	{
-		encryptedAccount['password'] = encrypt(account.password, token);
-	}
-
-	if (account.tags)
-	{
-		encryptedAccount['tags'] = encrypt(account.tags, token);            
-	}
-
-	return encryptedAccount;
+    return encryptedAccount;
 }
 
 function getDecryptedAccount (account, token)
 {
 	let decryptedAccount = JSON.parse(JSON.stringify(account)); // Clone object without reference
 
-	if (account.platform)
-	{
-		decryptedAccount['platform'] = decrypt(account.platform, token);
-	}
+	cryptedArgs
+	.filter(cryptedArg => account[cryptedArg])
+	.forEach(cryptedArg => decryptedAccount[cryptedArg] = decrypt(account[cryptedArg], token))
 
-	if (account.login)
-	{
-		decryptedAccount['login'] = decrypt(account.login, token);
-	}
-
-	if (account.password)
-	{
-		decryptedAccount['password'] = decrypt(account.password, token);
-	}
-
-	if (account.tags)
-	{
-		decryptedAccount['tags'] = decrypt(account.tags, token);            
-	}
-
-	if (account.created_date)
-	{
-		let created_date = decryptedAccount['created_date'];
-		decryptedAccount['created_date'] = new Date(created_date).toUTCString();            
-	}
-
-	return decryptedAccount;
+    return decryptedAccount;
 }
 
 function cleanUrl (url)
@@ -157,25 +144,37 @@ function getHeadersWithAuth(email, token)
 	return headers;
 }
 
-function attachRevealFunction() {
-	$('.reveal-btn').click(function() {
-	
-		const contentId = $(this).data('content-id');
-		
-		$('#'+contentId).css('display', 'block');
-		$(this).css('display', 'none');
-		
-		$('.hide-btn[data-content-id="'+contentId+'"]').css('display', 'block');
+function fill(login, password, password_clue) {
+	chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+		var activeTab = tabs[0];
+		chrome.tabs.sendMessage(activeTab.id, { type: 'credentials', login: login, password: password, password_clue: password_clue });
+	});
+}
+
+function attachActionButtons() {
+	$('.clipboardable').click(function() {
+		$(this).select();
+		document.execCommand('copy');
 	})
 	
-	$('.hide-btn').click(function() {
-	
+	$('.autofill').click(function() {
+		const id = $(this).attr('id').split('login-')[1];
+		
+		const passwordField = $('#password-'+id+' .plain-password');
+		const passwordClueField = $('#password-'+id+' .password-clue')
+		
+		fill($(this).val(), passwordField ? passwordField.val() : '', passwordClueField ? passwordClueField.val() : '')
+	})
+	 
+	$('a.card-header-icon').click(function() {
 		const contentId = $(this).data('content-id');
-
-		$('#'+contentId).css('display', 'none');
-		$(this).css('display', 'none');
-			
-		$('.reveal-btn[data-content-id="'+contentId+'"]').css('display', 'block');
+		
+		const isVisible = $('#'+contentId).is(':visible');
+		
+		$('#'+contentId)[isVisible ? 'hide' : 'show']();
+		
+		$('.hide-btn[data-content-id="'+contentId+'"]')[isVisible ? 'hide' : 'show']();
+		$('.reveal-btn[data-content-id="'+contentId+'"]')[isVisible ? 'show' : 'hide']();
 	})
 }
 
@@ -226,37 +225,67 @@ function login(email, password)
 
 function filterAccountsByUrl(accounts, url)
 {
-	return accounts.filter(a => url.toLowerCase().includes(cleanUrl(a.platform).toLowerCase()));
+	return accounts.filter(a => 
+		url.toLowerCase().includes(cleanUrl(a.platform).toLowerCase())
+		|| a.platform.toLowerCase().includes(cleanUrl(url).toLowerCase())
+	);
 }
 
 function displayAccounts(accounts)
 {
-	const accountsHtml = accounts.map(a => 
-			`	<div class="card">
+	let accountsHtml = accounts.map(a => {
+			let htmlContent = `	
+<div class="card">
   <header class="card-header">
-    <p class="card-header-title">
-      ${ a.login }
-    </p>
-    <a href="#" class="card-header-icon" aria-label="Reveal">
-	  <span class="icon reveal-btn" data-content-id="${a._id}">
+    <div class="card-header-title">
+		<input class="input content-input clipboardable autofill" type="text" value="${ a.login }" id="login-${a._id}" readonly>
+	</div>
+
+    <a href="#" class="card-header-icon" aria-label="Reveal" data-content-id="password-${a._id}">
+	  <span class="icon reveal-btn" data-content-id="password-${a._id}">
 		<i class="far fa-eye"></i>
 	  </span>
-	  <span class="icon hide-btn" data-content-id="${a._id}">
+	  <span class="icon hide-btn" data-content-id="password-${a._id}">
 		<i class="far fa-eye-slash"></i>
-	  </span>
+	  </span> 
     </a>
   </header>
-  <div class="card-content" id="${a._id}">
-    <div class="content">
-      ${ a.password }
-    </div>
-  </div>
-</div>`
-		);
+  <div class="card-content has-background-light" id="password-${a._id}">
+    <div class="content">`;
+					
+		if (a.password) {
+			htmlContent += `
+				
+				<label class="label">Password</label>
+				<input class="input clipboardable plain-password" type="text" value="${ a.password }" readonly>
+			`;
+		}
+		
+		if (a.password_clue) {
+			htmlContent += `
+				<label class="label">Password clue</label>
+				</span>
+				<input class="input password-clue" type="text" value="${ a.password_clue }" readonly>
+			`;
+		}
+		
+		if (a.social_login) {
+			htmlContent += `
+				<label class="label">Social login</label>
+				<input class="input" type="text" value="${ a.social_login }" readonly>
+			`;
+		}
+
+		htmlContent += `</div>
+	  </div>
+	</div>`
+
+	return htmlContent;
+	});
 			
 	$('#app').html(accountsHtml);
 		
-	attachRevealFunction();
+	attachActionButtons();
 }
 
 function displayNotFound()
@@ -324,7 +353,7 @@ function fetchAccountsForUrl(url, user)
 	}
 }
 
-$(document).ready(function() {
+$(document).ready(function() {	
 	chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 		let activeTabUrl = tabs[0].url;
 
@@ -334,11 +363,13 @@ $(document).ready(function() {
 			fetchAccountsForUrl(activeTabUrl, user);
 		}
 		else {
-			$('#login').css('display', 'block');
+			$('#login').show();
 			
 			$('#login-btn').click(function() {
 				login($('#email-input').val(), $('#password-input').val());
 			})
 		}
+		
+		chrome.tabs.executeScript(tabs[0].id, { file: "jquery-3.1.1.min.js" }, function(){});
 	});
 });

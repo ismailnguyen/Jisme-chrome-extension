@@ -10,6 +10,13 @@
     "default_popup": "index.html",
 	"default_title": "Jisme extension"
   },
+  
+  "content_scripts" : [
+    {
+		"matches" : ["https://*/*", "http://*/*"],
+        "js": ["autocomplete.js"]
+    }
+  ],
     
   "permissions": [
     "activeTab",
