@@ -84,9 +84,7 @@ function getDecryptedAccount (account, token)
 
 function cleanUrl (url)
 {
-	url = extractHostname(url);
-
-	return url;
+	return extractHostname(url);
 }
 
 function extractHostname (url)
@@ -223,12 +221,10 @@ function login(email, password)
         });
 }
 
+
 function filterAccountsByUrl(accounts, url)
 {
-	return accounts.filter(a => 
-		url.toLowerCase().includes(cleanUrl(a.platform).toLowerCase())
-		|| a.platform.toLowerCase().includes(cleanUrl(url).toLowerCase())
-	);
+	return accounts.filter(a => cleanUrl(a.platform).toLowerCase().includes(cleanUrl(url).toLowerCase()));
 }
 
 function displayAccounts(accounts)
@@ -238,7 +234,12 @@ function displayAccounts(accounts)
 <div class="card">
   <header class="card-header">
     <div class="card-header-title">
-		<input class="input content-input clipboardable autofill" type="text" value="${ a.login }" id="login-${a._id}" readonly>
+		<div class="field">
+			<p class="help is-link">${cleanUrl(a.platform)}</p>
+			<div class="control">
+				<input class="input content-input clipboardable autofill" type="text" value="${ a.login }" id="login-${a._id}" readonly>
+			</div>	
+		</div>
 	</div>
 
     <a href="#" class="card-header-icon" aria-label="Reveal" data-content-id="password-${a._id}">
