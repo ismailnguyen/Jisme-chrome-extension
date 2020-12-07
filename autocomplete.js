@@ -19,17 +19,17 @@ chrome.runtime.onMessage.addListener(
 );
 
 function fillUsername (value) {
-	$('input[name*="login"], input[id*="login"], input[name*="user"], input[id*="user"], input[name*="email"], input[id*="email"], input[type="email"]').val(value);
+	$('input[name*="login" i], input[id*="login" i], input[name*="user" i], input[id*="user" i], input[name*="email" i], input[id*="email" i], input[type="email" i]').val(value);
 }
 
 function fillPassword (value) {
-	$('input[name*="pwd"], input[id*="pwd"], input[name*="password"], input[id*="password"], input[type="password"]').val(value);
+	$('input[name*="pwd" i], input[id*="pwd" i], input[name*="password" i], input[id*="password" i], input[type="password" i]').val(value);
 }
 
 function fillPasswordClue (value) {
-	$('input[name*="pwd"], input[id*="pwd"], input[name*="password"], input[id*="password"], input[type="password"]').attr('placeholder', value);
+	$('input[name*="pwd" i], input[id*="pwd" i], input[name*="password" i], input[id*="password" i], input[type="password" i]').attr('placeholder', value);
 }
 
 function submitForm () {
-	$('[type="submit"]').click();
+	$('[type="submit" i]').click();
 }
