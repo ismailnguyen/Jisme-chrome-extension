@@ -224,7 +224,7 @@ function login(email, password)
 
 function filterAccountsByUrl(accounts, url)
 {
-	return accounts.filter(a => cleanUrl(a.platform).toLowerCase().includes(cleanUrl(url).toLowerCase()));
+	return accounts.filter(a => cleanUrl(url).toLowerCase().includes(cleanUrl(a.platform).toLowerCase()));
 }
 
 function displayAccounts(accounts)
