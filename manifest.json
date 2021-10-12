@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Jisme extension",
-  "description": "Quicky get credentials of page you are currently browsing",
+  "description": "Quickly get credentials of page you are currently browsing",
   "version": "1.0",
 
   "browser_action": {
