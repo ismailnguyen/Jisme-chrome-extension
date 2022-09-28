@@ -117,13 +117,6 @@ function extractHostname (url)
     return hostname;
 }
 
-function getAuthorizationString(email, token)
-{
-	var authorizationBasic = btoa(email + ":" + token).toString("base64");
-
-	return 'Basic ' + authorizationBasic;
-}
-
 function getHeaders()
 {
 	let headers = new Headers();
@@ -133,11 +126,12 @@ function getHeaders()
 	return headers;
 }
 
-function getHeadersWithAuth(email, token)
+function getHeadersWithAuth(token)
 {
 	let headers = getHeaders();
 
-	headers.append('Authorization', getAuthorizationString(email, token));
+    headers.append('Authorization', `Bearer ${token}`);
+
 
 	return headers;
 }
@@ -189,7 +183,7 @@ function login(email, password)
             password: password
         };
 		
-	return fetch('https://jisme-api.herokuapp.com/users/login/',
+	return fetch('https://api.jisme.app/users/login/',
         {
             method: 'POST',
             headers: getHeaders(),
@@ -299,12 +293,12 @@ function displayNotFound()
 	`);
 }
 
-function fetchAccountsOnline(url, email, token)
+function fetchAccountsOnline(url, token)
 {
-	return fetch('https://jisme-api.herokuapp.com/accounts/',
+	return fetch('https://api.jisme.app/accounts/',
 	{
 		method: 'GET',
-		headers: getHeadersWithAuth(email, token)
+		headers: getHeadersWithAuth(token)
 	})
 	.then(response => response.clone().json())
 	.then(accounts => {
@@ -316,10 +310,10 @@ function fetchAccountsOnline(url, email, token)
 
 function updateLastUpdateDate(user)
 {
-	return fetch(`https://jisme-api.herokuapp.com/users/${user.id}`,
+	return fetch(`https://api.jisme.app/users/${user.id}`,
 	{
 		method: 'GET',
-		headers: getHeadersWithAuth(user.email, user.token)
+		headers: getHeadersWithAuth(user.token)
 	})
 	.then(response => response.json())
 	.then(jsonData => {			
@@ -350,7 +344,7 @@ function fetchAccountsForUrl(url, user)
 		}
 	}
 	else {
-		fetchAccountsOnline(url, user.email, user.token)
+		fetchAccountsOnline(url, user.token)
 	}
 }
 
